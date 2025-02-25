@@ -7,6 +7,17 @@ import os
 from collections import Counter
 import json
 
+
+import pandas as pd 
+import json
+import re
+import langdetect
+import nltk
+from nltk.tokenize import word_tokenize, sent_tokenize
+from langdetect import detect, DetectorFactory
+from langdetect.lang_detect_exception import LangDetectException
+
+
 # Class to handle dataset loading
 class Data:
     # Function to load different types of datasets
@@ -317,6 +328,159 @@ def convert_numbers_to_words(text):
         return text
     
     return text
+
+
+
+import pandas as pd
+from langdetect import detect
+
+# Function to detect if the language is not English
+def detect_non_english(text):
+    """Detects if the language is not English ('en')."""
+    try:
+        # Check if text is a string and detect the language
+        if isinstance(text, str):
+            return detect(text) != 'en'  # Return True if the text is not English
+        return False  # If the text is not a string (e.g., NaN), return False
+    except Exception:
+        return False  # In case of error, assume it's English
+
+# Load dataset 
+file_path = r"C:\Kimani\workspace_csv\Simba\CSVs\physics_data.csv"
+df = pd.read_csv(file_path)
+
+# Column in the dataset
+columns_to_check = ['title', 'content', 'summary']
+
+# Ensure all columns exist
+for column in columns_to_check:
+    if column not in df.columns:
+        print(f"Column '{column}' not found in the dataset!")
+        columns_to_check.remove(column)
+
+# Check each column for non-English text
+for column in columns_to_check:
+    # Apply the detection function to each of the columns (title, content, summary)
+    df[f'{column}_is_non_english'] = df[column].apply(detect_non_english)
+
+# Filter and print rows where any column has non-English text
+non_english_rows = df[df[['title_is_non_english', 'content_is_non_english', 'summary_is_non_english']].any(axis=1)]
+
+# Print the rows that contain non-English text in any of the specified columns
+print(non_english_rows[['title', 'content', 'summary'] + [f'{col}_is_non_english' for col in columns_to_check]])
+
+import asyncio
+import pandas as pd
+from googletrans import Translator
+
+# Batch translation function
+async def batch_translate(texts, dest='en'):
+    """Batch translate a list of texts."""
+    translator = Translator()
+    try:
+        translations = await asyncio.gather(*[translator.translate(text, dest=dest) for text in texts])
+        return [translation.text for translation in translations]
+    except Exception as e:
+        print(f"Error during batch translation: {e}")
+        return texts
+
+# Translate a single column of the dataframe
+async def translate_column(df, column_name):
+    print(f"\nTranslating '{column_name}' to English...")
+    
+    # Collect texts from the column
+    texts = df[column_name].tolist()
+    
+    # Batch translate the texts in parallel
+    translated_texts = await batch_translate(texts)
+    
+    # Replace the original column with the translated texts
+    df[column_name] = translated_texts
+
+# Function to read the file with proper encoding
+def read_file_with_encoding(file_path):
+    try:
+        with open(file_path, 'r', encoding='utf-8') as file:
+            return file.read()
+    except UnicodeDecodeError:
+        print("UnicodeDecodeError encountered with UTF-8 encoding. Trying ISO-8859-1.")
+        with open(file_path, 'r', encoding='ISO-8859-1') as file:
+            return file.read()
+    except Exception as e:
+        print(f"Error reading the file: {e}")
+        return ""
+
+# Main asynchronous function
+async def main():
+    # Read the dataset (replace with your actual dataset)
+    df = pd.read_csv(r"C:\Kimani\workspace_csv\Simba\CSVs\physics_data.csv")
+
+    # List the columns (title, content, summary)
+    print("Columns in the dataset:")
+    print(df.columns.tolist())
+
+    # Translate content for the columns: title, content, and summary
+    for column in ['title', 'content', 'summary']:
+        if column in df.columns:
+            await translate_column(df, column)
+    
+    # Display the translated dataframe
+    print("\nTranslated dataset:")
+    print(df)
+
+# If already inside a running event loop (e.g., in Jupyter or similar environments), use `await` directly
+if __name__ == "__main__":
+    try:
+        # Check if the event loop is already running (use await directly in this case)
+        loop = asyncio.get_event_loop()
+        if loop.is_running():
+            print("Running in an existing event loop, calling main() directly...")
+            loop.create_task(main())
+        else:
+            # Otherwise, use asyncio.run() to start the event loop
+            asyncio.run(main())
+    except RuntimeError:
+        # If no event loop is running, use asyncio.run()
+        asyncio.run(main())
+
+
+import pandas as pd
+import re
+
+# Function to detect outliers
+def detect_outliers(df):
+    print("\nChecking for the outliers in the Dataset:")
+    
+    for col in df.select_dtypes(include=['number']).columns:  
+        # Detecting outliers based on 5th and 95th percentiles
+        outliers = df[(df[col] < df[col].quantile(0.05)) | (df[col] > df[col].quantile(0.95))]
+        print(f"Outliers in '{col}': {len(outliers)}")
+
+# Function to validate email format
+def check_email_format(email):
+    """Simple regex-based email format checker."""
+    email_regex = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
+    return re.match(email_regex, email) is not None
+
+# Function to check for incorrect email format in the dataset
+def check_email(df):
+    print("\n **Incorrect Email Format**")
+    
+    # Search for a column containing 'email' in its name
+    if any(df.columns.str.contains("email", case=False)):
+        email_col = df.loc[:, df.columns.str.contains("email", case=False)].columns[0]
+        
+        # Check for invalid emails in the column
+        invalid_emails = df[~df[email_col].astype(str).apply(check_email_format)]
+        print(f"Number of emails with incorrect format in '{email_col}': {len(invalid_emails)}")
+    else:
+        print("No email column found.")
+
+df = pd.read_csv(r"C:\Kimani\workspace_csv\Simba\CSVs\physics_data.csv")  # Load your dataset
+detect_outliers(df)
+check_email(df)
+
+            
 
 # Apply the function
 # Testing with a number
