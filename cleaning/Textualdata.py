@@ -52,6 +52,17 @@ class Data:
         except Exception as e:
             print(f"OOHH! NOO! There was an Error Loading the Dataset: {e}")
             return None
+        try: 
+            # reasing a file with the correct encoding
+            return pd.read_csv(file_path, encoding='utf-8')
+        except UnicodeDecodeError:
+            print("UnicodeDecodeError encountered with UTF-8 encoding. Trying ISO-8859-1.")
+            return pd.read_csv(file_path, encoding='ISO-8859-1')
+        except Exception as e:
+            print(f"Error reading the file: {e}")
+            return None
+# Class to handle dataset loading   
+
 
 # Create an instance of Data and load the dataset
 data_loader = Data()
@@ -93,37 +104,6 @@ for col in df.columns:
     print (df[col].apply(lambda x: type(x)).value_counts(), "\n")   
 
 
-# Detect issues in the dataset
-def detect_issues(df):
-    # checks if the dataset has some common issues and report them
-       print("\n **Dataset Overview**")
-       print(df.info())
-    
-       print("\n **Missing Values")
-       print(df.isnull().sum())
-    
-       print("\n **Duplicate Rows**")
-       print(f"The total number of duplicates is:{df.duplicated().sum()}")
-    
-       print("\n **Inconsistent Datatypes**")
-       print(df.apply(type).head())
-    
-df = pd.read_csv(r"Default file path")
-
-detect_issues(df)
-print("detect_issues")
-# print (detect_issues(df))
-
-
-# #check on missing value
-missing_values = df.isnull()
-missing_values.head()
-#list of columns with missing values
-for column in missing_values.columns.values.tolist():
-    print(column)
-    print (missing_values[column].value_counts())
-    print("")
-df.head()
 
 # convert datatypes
 data =df
@@ -135,34 +115,12 @@ print("\nNew datatypes ")
 print(new_df.dtypes)
 
 
-# Drop Duplicated values
-df = df.drop_duplicates()
-# check for duplicates
-print("\n **Duplicate Rows**")
-print(f"The total number of duplicates is:{df.duplicated().sum()}")
-
 df["content"] = df["content"].str.replace(r"[^\w\s]", "", regex=True).str.replace("\n", "", regex=True)
 df["summary"] = df["summary"].str.replace(r"[^\w\s]", "", regex=True).str.replace("\n", "", regex=True)
 df["title"] = df["title"].str.replace(r"[^\w\s]", "", regex=True)
 
 df.head()
 
-
-# word Splitting
-import wordninja
-df ['title'] = df['title'].apply(lambda x: " ".join(wordninja.split(x)))
-df ['content'] = df['content'].apply(lambda x: " ".join(wordninja.split(x)))
-df ['summary'] = df['summary'].apply(lambda x: " ".join(wordninja.split(x)))
-
-# Remove special characters and single characters
-df['content'] = df['content'].str.replace(r'[^A-Za-z0-9\s]', '', regex=True)  # Remove special characters
-df['summary'] = df['summary'].str.replace(r'[^A-Za-z0-9\s]', '', regex=True)  # Remove special characters
-
-df['content'] = df['content'].str.replace(r'\b\w{1}\b', '', regex=True)
-df['summary'] = df['summary'].str.replace(r'\b\w{1}\b', '', regex=True) 
-
-# Display the updated DataFrame
-print(df)
 
 
 # Drop rows where both columns 'content' and 'summary' are empty
