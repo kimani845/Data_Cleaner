@@ -1,0 +1,352 @@
+# Import of necessary libraries
+import pandas as pd
+import numpy as np
+import re
+import nltk
+import os
+from collections import Counter
+import json
+
+# Class to handle dataset loading
+class Data:
+    # Function to load different types of datasets
+    def load_dataset(self, file_path):
+        """Loads the dataset based on its file type."""
+        try:
+            # Default file path if no other is provided
+            if file_path == "default":
+                file_path = r"C:\Kimani\workspace_csv\Simba\CSVs\physics_data.csv"
+
+            # Check if file exists before processing
+            if not os.path.exists(file_path):
+                raise FileNotFoundError(f"OOOOPS! Your file '{file_path}' does not exist.")
+
+            # Load different file types
+            if file_path.endswith('.csv'):
+                return pd.read_csv(file_path)
+            elif file_path.endswith('.json'):
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                return pd.DataFrame(data)
+            elif file_path.endswith('.txt'):
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    return pd.DataFrame({'Text': f.readlines()})  # Read lines into a DataFrame
+            elif file_path.endswith('.tsv'):
+                return pd.read_csv(file_path, sep='\t', header=None)
+            elif file_path.endswith(('.xlsx', '.xls')):
+                return pd.read_excel(file_path)
+            else:
+                raise ValueError("SORRY! You Provided an Unsupported File Format.")
+
+        except Exception as e:
+            print(f"OOHH! NOO! There was an Error Loading the Dataset: {e}")
+            return None
+
+# Create an instance of Data and load the dataset
+data_loader = Data()
+df = data_loader.load_dataset("default")
+
+# Print dataset if loaded successfully
+if df is not None:
+    print(df)
+
+
+# Initialize the class
+finance = Data()
+file_path = "default"
+
+try:
+    df = finance.load_dataset(file_path)
+    print(df.head())
+except Exception as e:
+    print(e)
+
+# Display dataset info
+df.info()
+
+# display the datatypesof the columns
+print(df.dtypes)
+# datatypes for specicfic columns
+print(df['column_name'].dtype)
+
+# checking for mixed datatypes
+df.applymap(type).head()
+
+# to find different datatypes in all the columns
+type_counts = df.apply(type).nunique()
+print(type_counts)
+
+# Datatypes distribution in each colummn
+for col in df.columns:
+    print (f"Column: {col}")
+    print (df[col].apply(lambda x: type(x)).value_counts(), "\n")   
+
+
+# Detect issues in the dataset
+def detect_issues(df):
+    # checks if the dataset has some common issues and report them
+       print("\n **Dataset Overview**")
+       print(df.info())
+    
+       print("\n **Missing Values")
+       print(df.isnull().sum())
+    
+       print("\n **Duplicate Rows**")
+       print(f"The total number of duplicates is:{df.duplicated().sum()}")
+    
+       print("\n **Inconsistent Datatypes**")
+       print(df.apply(type).head())
+    
+df = pd.read_csv(r"Default file path")
+
+detect_issues(df)
+print("detect_issues")
+# print (detect_issues(df))
+
+
+# #check on missing value
+missing_values = df.isnull()
+missing_values.head()
+#list of columns with missing values
+for column in missing_values.columns.values.tolist():
+    print(column)
+    print (missing_values[column].value_counts())
+    print("")
+df.head()
+
+# convert datatypes
+data =df
+print ("Original Datatypes")
+print(df.dtypes)
+# convert datatypes using the convert_dtypes
+new_df = df.convert_dtypes()
+print("\nNew datatypes ")
+print(new_df.dtypes)
+
+
+# Drop Duplicated values
+df = df.drop_duplicates()
+# check for duplicates
+print("\n **Duplicate Rows**")
+print(f"The total number of duplicates is:{df.duplicated().sum()}")
+
+df["content"] = df["content"].str.replace(r"[^\w\s]", "", regex=True).str.replace("\n", "", regex=True)
+df["summary"] = df["summary"].str.replace(r"[^\w\s]", "", regex=True).str.replace("\n", "", regex=True)
+df["title"] = df["title"].str.replace(r"[^\w\s]", "", regex=True)
+
+df.head()
+
+
+# word Splitting
+import wordninja
+df ['title'] = df['title'].apply(lambda x: " ".join(wordninja.split(x)))
+df ['content'] = df['content'].apply(lambda x: " ".join(wordninja.split(x)))
+df ['summary'] = df['summary'].apply(lambda x: " ".join(wordninja.split(x)))
+
+# Remove special characters and single characters
+df['content'] = df['content'].str.replace(r'[^A-Za-z0-9\s]', '', regex=True)  # Remove special characters
+df['summary'] = df['summary'].str.replace(r'[^A-Za-z0-9\s]', '', regex=True)  # Remove special characters
+
+df['content'] = df['content'].str.replace(r'\b\w{1}\b', '', regex=True)
+df['summary'] = df['summary'].str.replace(r'\b\w{1}\b', '', regex=True) 
+
+# Display the updated DataFrame
+print(df)
+
+
+# Drop rows where both columns 'content' and 'summary' are empty
+df.dropna(subset=['content', 'summary'], how='all', inplace=True)
+
+# Delete any links in the columns 'summary' and 'contents'
+df['summary'] = df['summary'].str.replace(r'http[s]?://\S+', '', regex=True)
+df['content'] = df['content'].str.replace(r'http[s]?://\S+', '', regex=True)
+
+# Convert the 'summary' and 'contents' column to lowercase
+df['summary'] = df['summary'].str.lower()
+df['content'] = df['content'].str.lower()
+
+# Display the updated DataFrame
+print(df)
+
+# check the length of the content and summary columns
+df['column'].value_counts()
+df['column'].value_counts()
+
+# Display the unique values in the 'column' column
+print(df['column'].unique())
+
+df.isna().sum()
+
+# Text normalization
+# convert the dataset to lowercase
+def text_lowercase(text):
+    df['title'] = df['title'].apply(lambda x: x.lower())
+    df['content'] = df['content'].apply(lambda x: x.lower())
+    df['summary'] = df['summary'].apply(lambda x: x.lower())
+    return df.head()
+
+text_lowercase(text)
+# another way to convert the dataset to lowercase is using the str.lower() method
+def text_lowercase(text):
+    return text.str.lower()
+input_str = df['column', 'column', 'column']
+text_lowercase(input_str)
+
+
+# Convert the numbers to words with dictionary that has infinite numbers
+# # Convert numbers to words  using a dictionary
+# import re
+# num_dict = {'0': 'zero', '1': 'one', '2': 'two', '3': 'three', '4': 'four', '5': 'five', '6': 'six', '7': 'seven', '8': 'eight', '9': 'nine'}
+
+# tens_dict = {'10': 'ten', '11': 'eleven', '12': 'twelve', '13': 'thirteen', '14': 'fourteen', 
+#                     '15': 'fifteen', '16': 'sixteen', '17': 'seventeen', '18': 'eighteen', '19': 'nineteen', '20': 'twenty', '30': 'thirty', '40': 'forty',
+#                     '50': 'fifty', '60': 'sixty', '70': 'seventy', '80': 'eighty', '90': 'ninety'} 
+
+# hundred_dict = {'100': 'one hundred', '200': 'two hundred', '300 ': 'three hundred', '400': 'four hundred', '500': 'five hundred',
+#                     '600': 'six hundred', '700': 'seven hundred', '800': 'eight hundred', '900': 'nine hundred'} 
+    
+# Large_numbers = {
+#     100: 'hundred', 1000: 'thousand', 1_000_000: 'million'
+# }
+# def convert_to_words(num):
+    
+#     num = int(num)  # Ensure input is an integer
+#     if num < 10:
+#         return num_dict[str(num)]
+#     if num <20 :
+#         return tens_dict[str(num)]
+#     if num < 100:
+#         tens, remainder = divmod(num, 10)
+#         return tens_dict[str(tens * 10)] +(''if remainder == 0 else '-' + num_dict[str(remainder)])
+#     if num < 1000:  
+#         hundreds, remainder = divmod(num, 100)
+#         return num_dict[str(hundreds)] + 'hundred' + ('' if remainder == 0 else '' + convert_to_words(remainder))
+#     if num < 1_000_000:
+#         thousands, remainder = divmod(num, 1000)
+#         return convert_to_words(thousands) + 'thousand' + ('' if remainder == 0 else '' + convert_to_words(remainder))
+        
+#     for large_num in sorted(Large_numbers.keys(), reverse=True):
+#         if num >= large_num:
+#             large, remainder = divmod(num, large_num)
+#             return convert_to_words(large) + ' ' + Large_numbers[large_num] + ('' if remainder == 0 else ' ' + convert_to_words(remainder))
+#         # return num
+        
+#     for num in sorted(Large_numbers.keys(), reverse=True):
+#         if num >= num:
+#             large, remainder = divmod(num, num)
+#             return convert_to_words(large) + ' ' + Large_numbers[large] + ('' if remainder == 0 else ' ' + convert_to_words(remainder))
+#         return num
+            
+    
+# def convert_numbers_to_words(text):
+
+#     # text = text.str.replace(r'\d+', lambda x: num_dict[x.group()] 
+#     #                         if len(x.group()) == 1 
+#     #                         else tens_dict.get(x.group(), x.group()))
+    
+#     if isinstance(text, int): #if input is a number, convert it instantly
+#         return convert_to_words(text)
+#     if isinstance (text, str): # if the input is a text, replace the numbers that are within the string
+#         text = re.sub(r'\d+', lambda x: convert_to_words(int(x.group())), text) 
+#         return text 
+
+#     return text    
+# # text.apply(lambda x: convert_to_words(x))  
+# # result = ' '.join([num_dict.get(i, i) for i in text.split()])
+# # return result
+    
+# # Apply the function
+# # Testing with a number
+# input_number = 213423 
+# print (convert_to_words(input_number))
+
+# # testing with text containing numbers
+# input_text = "I have 23 oranges and 4354 biscuits! Do you want some?"
+# print (convert_to_words(input_text))
+
+# Remove numbers
+# Remove numbers from a string using regular expression
+import re
+
+num_dict = {'0': 'zero', '1': 'one', '2': 'two', '3': 'three', '4': 'four', '5': 'five', 
+            '6': 'six', '7': 'seven', '8': 'eight', '9': 'nine'}
+
+tens_dict = {'10': 'ten', '11': 'eleven', '12': 'twelve', '13': 'thirteen', '14': 'fourteen', 
+             '15': 'fifteen', '16': 'sixteen', '17': 'seventeen', '18': 'eighteen', '19': 'nineteen', 
+             '20': 'twenty', '30': 'thirty', '40': 'forty', '50': 'fifty', '60': 'sixty', 
+             '70': 'seventy', '80': 'eighty', '90': 'ninety'} 
+
+hundred_dict = {'100': 'one hundred', '200': 'two hundred', '300': 'three hundred', '400': 'four hundred', 
+                '500': 'five hundred', '600': 'six hundred', '700': 'seven hundred', '800': 'eight hundred', 
+                '900': 'nine hundred'} 
+
+Large_numbers = {100: 'hundred', 1000: 'thousand', 1_000_000: 'million'}
+
+def convert_to_words(num):
+    num = int(num)  # Ensure input is an integer
+
+    if num < 10:
+        return num_dict[str(num)]
+    
+    if num < 20:
+        return tens_dict[str(num)]
+    
+    if num < 100:
+        tens, remainder = divmod(num, 10)
+        return tens_dict[str(tens * 10)] + ('' if remainder == 0 else '-' + num_dict[str(remainder)])
+    
+    if num < 1000:
+        hundreds, remainder = divmod(num, 100)
+        return num_dict[str(hundreds)] + ' hundred' + ('' if remainder == 0 else ' ' + convert_to_words(remainder))
+    
+    if num < 1_000_000:
+        thousands, remainder = divmod(num, 1000)
+        return convert_to_words(thousands) + ' thousand' + ('' if remainder == 0 else ' ' + convert_to_words(remainder))
+    
+    for large_num in sorted(Large_numbers.keys(), reverse=True):
+        if num >= large_num:
+            large, remainder = divmod(num, large_num)
+            return convert_to_words(large) + ' ' + Large_numbers[large_num] + ('' if remainder == 0 else ' ' + convert_to_words(remainder))
+
+def convert_numbers_to_words(text):
+    if isinstance(text, int):  # If input is a number, convert it directly
+        return convert_to_words(text)
+    
+    if isinstance(text, str):  # If input is text, replace numbers within the string
+        text = re.sub(r'\d+', lambda x: convert_to_words(int(x.group())), text)
+        return text
+    
+    return text
+
+# Apply the function
+# Testing with a number
+input_number = 213423
+print(convert_numbers_to_words(input_number))
+
+# Testing with text containing numbers
+input_text = "I have 23 oranges and 4354 biscuits! Do you want some?"
+print(convert_numbers_to_words(input_text))
+
+
+
+import re
+def remove_numbers(text):
+    result = re.sub(r'\d+', '', text)
+    return result
+input_str = df['column', 'column', 'column']
+remove_numbers(input_str)
+
+# Normalize the Dataframe
+
+text_cols = ['title','contents', 'summary','urls', 'links']
+for col in text_cols:
+    df[col] = df[col].astype(str).str.lower()
+
+
+
+df.to_csv("kim.csv", index=False)
+
+
+
+
+
