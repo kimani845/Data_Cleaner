@@ -20,7 +20,7 @@ def load_and_clean_dataset(file_path):
         dataset['summary'] = dataset['summary'].apply(lambda x: None if x == 'nan' or x == '[]' else x)
         dataset['content'] = dataset['content'].apply(lambda x: None if x == 'nan' or x == '[]' else x)
         
-        # Remove leading zeros in all numeric columns (if any)
+          # Remove leading zeros in all numeric columns (if any)
         for column in dataset.select_dtypes(include=['object']).columns:
             dataset[column] = dataset[column].apply(lambda x: x.lstrip('0') if isinstance(x, str) else x)
 

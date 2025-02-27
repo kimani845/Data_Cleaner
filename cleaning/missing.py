@@ -48,6 +48,15 @@ def handle_missing_values():
     
     return df
 
+# Missing Values in
+missing_values = df.isnull()
+summary_percentage = missing_values['summary'].value_counts() / df['summary'].size 
+content_percentage = missing_values['content'].value_counts() / df['summary'].size 
+
+print(content_percentage)
+print(summary_percentage)
+
+
 # Example usage
 if __name__ == "__main__":
     file_path = "your_dataset.csv"  # Update with your dataset file
