@@ -1,4 +1,13 @@
 # Detect issues in the dataset
+import pandas as pd
+import os
+import pandas as pd
+from langdetect import detect
+import asyncio
+import pandas as pd
+from googletrans import Translator
+import re
+
 def detect_issues(df):
     # checks if the dataset has some common issues and report them
        print("\n **Dataset Overview**")
@@ -12,8 +21,7 @@ def detect_issues(df):
     
        print("\n **Inconsistent Datatypes**")
        print(df.apply(type).head())
-    
-df = pd.read_csv(r"Default file path")
+
 
 detect_issues(df)
 print("detect_issues")
@@ -31,9 +39,6 @@ for column in missing_values.columns.values.tolist():
 df.head()
 
 # DETECT LANGUAGE
-import pandas as pd
-from langdetect import detect
-
 # Function to detect if the language is not English
 def detect_non_english(text):
     """Detects if the language is not English ('en')."""
@@ -45,12 +50,12 @@ def detect_non_english(text):
     except Exception:
         return False  # In case of error, assume it's English
 
-# Load dataset 
-file_path = r"C:\Kimani\workspace_csv\Simba\CSVs\physics_data.csv"
-df = pd.read_csv(file_path)
+# # Load dataset 
+# file_path = r"C:\Kimani\workspace_csv\Simba\CSVs\physics_data.csv"
+# df = pd.read_csv(file_path)
 
 # Column in the dataset
-columns_to_check = ['title', 'content', 'summary']
+columns_to_check = []
 
 # Ensure all columns exist
 for column in columns_to_check:
@@ -69,9 +74,6 @@ non_english_rows = df[df[['title_is_non_english', 'content_is_non_english', 'sum
 # Print the rows that contain non-English text in any of the specified columns
 print(non_english_rows[['title', 'content', 'summary'] + [f'{col}_is_non_english' for col in columns_to_check]])
 
-import asyncio
-import pandas as pd
-from googletrans import Translator
 
 # Batch translation function
 async def batch_translate(texts, dest='en'):
@@ -84,9 +86,6 @@ async def batch_translate(texts, dest='en'):
         print(f"Error during batch translation: {e}")
         return texts
     
-    
-import pandas as pd
-import re
 
 # Function to detect outliers
 def detect_outliers(df):
@@ -117,7 +116,7 @@ def check_email(df):
     else:
         print("No email column found.")
 
-df = pd.read_csv(r"C:\Kimani\workspace_csv\Simba\CSVs\physics_data.csv")  # Load your dataset
+# df = pd.read_csv(file_path) # Load the dataset
 detect_outliers(df)
 check_email(df)
 

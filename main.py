@@ -1,6 +1,7 @@
 import os
 # Parent File
 # it will be possible to run all the files from this one file folder
+from cleaning.data_loader import load_data
 from cleaning.Detect_issues import detect_issues
 from cleaning.duplicated import drop_duplicates
 from cleaning.links import remove_url
@@ -18,7 +19,11 @@ from cleaning.word_splitting import split_words
 from structural_data_updated import load_and_clean_dataset
 # from cleaning.links import is_valid_url
 
-# def main ():
+def main ():
+    DATA_FOLDER = "data/raw"  # Path to the folder containing the dataset
+    df = load_data(DATA_FOLDER)  # Load the raw dataset
+    df
+
 #     # This is the main function that will be run when the script is run
 #     dataset = pd.read_csv(r"Default file path") # Load the dataset
 # # perform the missing value habdling
