@@ -1,4 +1,6 @@
 import os
+import pandas as pd
+import numpy as np
 # Parent File
 # it will be possible to run all the files from this one file folder
 from cleaning.data_loader import load_data
@@ -12,8 +14,8 @@ from cleaning.number_to_words import convert_to_words
 from cleaning.special_chars import clean_text_columns,  process_files
 # from cleaning.Textualdata import remove_non_textual_data
 # from cleaning.stopwords import remove_stopwords
-from cleaning.tokenization import tokenize_text
-from cleaning.translate import translate_text
+from cleaning.tokenization import tokenize_text_columns, process_files
+from cleaning.translate import translate_column, read_file_with_encoding, main
 from cleaning.word_splitting import split_words
 # from cleaning.whitespace import remove_whitespace
 from structural_data_updated import load_and_clean_dataset
@@ -29,10 +31,6 @@ def main ():
 # # perform the missing value handling
 #     cleaned_dataset = handle_missing_values(dataset) # Clean the dataset
     
-#     # Text normalization
-#     normalized_dataset = normalize_text(cleaned_dataset) # Normalize the text in the dataset
-
-
 """Folder paths"""
 RAW_DATA_PATH = "data/raw"
 CLEANED_DATA_PATH = "data/cleaned"
@@ -46,16 +44,16 @@ STRUCTURAL_DATA_PATH = "data/structured"
 #         if not os.path.exists(STRUCTURTAL_DATA_PATH):
 #             os.makedirs(STRUCTURTAL_DATA_PATH)  # Create the folder if it does not exist
 
-os.mkdir(RAW_DATA_PATH, exist_ok=True)
-os.mkdir(CLEANED_DATA_PATH, exist_ok=True) 
-os.mkdir(STRUCTURAL_DATA_PATH, exist_ok=True) 
+os.makedirs(RAW_DATA_PATH, exist_ok=True)
+os.makedirs(CLEANED_DATA_PATH, exist_ok=True) 
+os.makedirs(STRUCTURAL_DATA_PATH, exist_ok=True) 
 
 # A function to process the files
 def process_files():
     for file_name in os.listdir(RAW_DATA_PATH):
         file_path = os.path.join(RAW_DATA_PATH, file_name)   
         
-        if file_name.endswith(".csv", ".txt", ".json", ".xlsx", ".xls"): #process only csv, txt, json, xlsx, xls files
+        if file_name.endswith((".csv", ".txt", ".json")): #process only csv, txt, json, xlsx, xls files
             print(f"Processing {file_name}...")
             
             # loading the datasets

@@ -80,8 +80,8 @@ if __name__ == "__main__":
         else:
             print("No duplicate columns found!")
 
-        # Drop duplicate rows
-        df = drop_duplicates(df)
+        # # Drop duplicate rows
+        # df = drop_duplicates(df)
 
         # Check and print duplicate row count
         duplicate_count = df.duplicated().sum()
