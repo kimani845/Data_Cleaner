@@ -5,12 +5,12 @@ from cleaning.data_loader import load_data
 from cleaning.Detect_issues import detect_issues
 from cleaning.duplicated import drop_duplicates
 from cleaning.links import remove_url
-from cleaning.missing import handle_missing_values # this import imports the handle_missing_values function from the missing.py file
+from cleaning.missing import handle_missing_values 
 from cleaning.normalization import normalize_text
-from cleaning.number_to_words import number_to_words
-from cleaning.remove_numbers import remove_numbers
-from cleaning.special_chars import remove_special_characters
-from cleaning.Textualdata import remove_non_textual_data
+from cleaning.number_to_words import convert_to_words
+# from cleaning.remove_numbers import remove_numbers
+from cleaning.special_chars import clean_text_columns,  process_files
+# from cleaning.Textualdata import remove_non_textual_data
 # from cleaning.stopwords import remove_stopwords
 from cleaning.tokenization import tokenize_text
 from cleaning.translate import translate_text
@@ -26,7 +26,7 @@ def main ():
 
 #     # This is the main function that will be run when the script is run
 #     dataset = pd.read_csv(r"Default file path") # Load the dataset
-# # perform the missing value habdling
+# # perform the missing value handling
 #     cleaned_dataset = handle_missing_values(dataset) # Clean the dataset
     
 #     # Text normalization
@@ -50,7 +50,7 @@ os.mkdir(RAW_DATA_PATH, exist_ok=True)
 os.mkdir(CLEANED_DATA_PATH, exist_ok=True) 
 os.mkdir(STRUCTURAL_DATA_PATH, exist_ok=True) 
 
-# A function to prosess the files
+# A function to process the files
 def process_files():
     for file_name in os.listdir(RAW_DATA_PATH):
         file_path = os.path.join(RAW_DATA_PATH, file_name)   
